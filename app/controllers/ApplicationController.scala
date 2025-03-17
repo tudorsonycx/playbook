@@ -1,19 +1,20 @@
 package controllers
 
 import models.DataModel
-import play.api.libs.json.Json
+import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 
 import javax.inject._
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import repositories.DataRepository
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ApplicationController @Inject()(
   val controllerComponents: ControllerComponents,
   val dataRepository: DataRepository,
   implicit val executionContext: ExecutionContext) extends BaseController {
+
   def index(): Action[AnyContent] = Action.async { implicit request =>
     dataRepository.index().map {
       case Right(item: Seq[DataModel]) => Ok {
@@ -23,11 +24,32 @@ class ApplicationController @Inject()(
     }
   }
 
-  def create() = TODO
+  def create(): Action[JsValue] = Action.async(parse.json) { implicit request =>
+    request.body.validate[DataModel] match {
+      case JsSuccess(dataModel, _) =>
+        dataRepository.create(dataModel).map(_ => Created)
+      case JsError(_) => Future(BadRequest)
+    }
+  }
 
-  def read(id: String) = TODO
+  def read(id: String): Action[AnyContent] = Action.async { implicit request =>
+    dataRepository.read(id).map(data => Ok {
+      Json.toJson(data)
+    })
+  }
 
-  def update(id: String) = TODO
+  def update(id: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
+    request.body.validate[DataModel] match {
+      case JsSuccess(dataModel, _) =>
+        dataRepository.update(id, dataModel).map(_ => Accepted {
+          request.body
+        }) //can also consider .read()
+      case JsError(_) => Future(BadRequest)
+    }
+  }
 
-  def delete(id: String) = TODO
+  def delete(id: String): Action[AnyContent] = Action.async { implicit request =>
+    dataRepository.delete(id).map(_ => Accepted)
+  }
+
 }
