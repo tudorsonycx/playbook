@@ -1,6 +1,8 @@
 package controllers
 
 
+import models.DataModel
+import play.api.libs.json.{JsError, JsSuccess, JsValue}
 import play.api.mvc._
 
 import javax.inject._
@@ -24,4 +26,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
   def index(): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
     Future.successful(Ok(views.html.index()))
   }
+
+
+
 }
