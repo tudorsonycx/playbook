@@ -1,11 +1,11 @@
 package controllers
 
 import javax.inject._
-import play.api.mvc.{BaseController, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 
 @Singleton
 class ApplicationController @Inject()(val controllerComponents: ControllerComponents) extends BaseController {
-  def index() = TODO
+  def index(): Action[AnyContent] = Action(Ok)
 
   def create() = TODO
 
